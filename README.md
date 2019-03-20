@@ -11,7 +11,13 @@ are stored as nodes inside the trees and each node is a doubly-linked list of or
 * Source code stored under `orderbook/src/`
 * Tests stored under `test/`
 
-## Testing
+## Install
+* `python setup.py install`
+
+## Run
+* `runner.py < data/ordersSimple.dat`
+
+## Test
 * Single: `python -m unittest test.testPriceTree`
 * All: `python -m unittest discover`
 
