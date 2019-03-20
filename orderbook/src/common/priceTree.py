@@ -71,7 +71,7 @@ class PriceTree(object):
                 and curr_order.peak_size > 0:
             # Get price OrderList
             matching_orders_list = self.get_price(best_price)
-            complete_trades.extend(matching_orders_list.match_order(curr_order))
+            complete_trades.extend(matching_orders_list.match_order(curr_order, self.order_map))
             # Remove exhausted price
             if matching_orders_list.size == 0:
                 self.remove_price(best_price)

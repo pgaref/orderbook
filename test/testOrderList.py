@@ -24,8 +24,6 @@ class TestOrderList(unittest.TestCase):
     def test_OrderListRemove(self):
         num_elements = 10
         order_list = TestOrderList.populateList(num_elements)
-        # Remove None
-        order_list.remove(None)
         self.assertTrue(order_list.size == num_elements)
 
         # Remove Tail (9 elements)

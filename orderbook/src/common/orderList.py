@@ -3,7 +3,6 @@ class OrderList(object):
         self._head = None
         self._tail = None
         self._size = 0
-        self._volume = 0  # Total volume
         self._temp = None  # Temp iterator variable
 
     @property
@@ -45,7 +44,6 @@ class OrderList(object):
             self.head = order
             self.tail = order
         self._size += 1
-        self._volume += order.peak_size
 
     def remove_head(self):
         self.remove(self.head)
@@ -59,8 +57,11 @@ class OrderList(object):
         :param order:
         :return:
         """
-        if self.head is None or order is None:
-            return
+        self._size -= 1
+        # Removing last element of the List
+        if self.size == 0:
+            self.head = None
+            self.tail = None
         # Remove from list of orders
         tmp_next = order.next_order
         tmp_prev = order.prev_order
@@ -76,19 +77,14 @@ class OrderList(object):
         elif tmp_prev is not None:
             tmp_prev.next_order = None
             self.tail = tmp_prev
-        # Removing last element of the List
-        else:
-            self.head = None
-            self.tail = None
-        self._size -= 1
-        self._volume -= order.peak_size
 
-    def match_order(self, other_order):
+    def match_order(self, other_order, order_map):
         """
          Match with orders in list method ensuring precedence (older orders fist)
          Start from head (we add to tail) and also loop when needed
          Any different match strategy should override this method
         :param other_order:
+        :param order_map:
         """
         # no match cases
         # if other_order.is_bid and other_order.price < self.head.price:
@@ -98,22 +94,22 @@ class OrderList(object):
 
         complete_orders = []
         # Iterate orders and make trades
-        list_it = iter(self)
-        current_order = next(list_it)
+        current_order = self.head
         # We loop until either the whole price-tree is gone or we run out of peak-size!
         while other_order.peak_size > 0 and self.size > 0:
             fully_matched = current_order.match(other_order)
-            # When current_order is exhausted add to complete list
-            if current_order.peak_size == 0:
-                complete_orders.append(current_order)
-                self.remove(current_order)
             # When fully matched go to next order (assume that Icebergs will have to wait their turn)
             if fully_matched:
-                try:
-                    current_order = next(list_it)
-                except StopIteration:
-                    # reached the end of the list start-over!!
-                    list_it = iter(self)
+                current_next = current_order.next_order
+                # When current_order is exhausted add to complete list
+                if current_order.peak_size == 0:
+                    complete_orders.append(current_order)
+                    del order_map[current_order.id]
+                    self.remove(current_order)
+                current_order = current_next
+                # reached the end of the list start-over!!
+                if current_next is None:
+                    current_order = self.head
 
         for order in iter(self):
             if order.trade_size > 0:
